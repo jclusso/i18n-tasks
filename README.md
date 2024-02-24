@@ -22,7 +22,7 @@ i18n-tasks can be used with any project using the ruby [i18n gem][i18n-gem] (def
 Add i18n-tasks to the Gemfile:
 
 ```ruby
-gem 'i18n-tasks', '~> 1.0.12'
+gem 'i18n-tasks', '~> 1.0.13', group: :development
 ```
 
 Copy the default [configuration file](#configuration):
@@ -336,6 +336,33 @@ data:
 If you want to have i18n-tasks reorganize your existing keys using `data.write`, either set the router to
 `pattern_router` as above, or run `i18n-tasks normalize -p` (forcing the use of the pattern router for that run).
 
+##### Isolating router
+
+Isolating router assumes each YAML file is independent and can contain similar keys.
+
+As a result, the translations are written to an alternate target file for each source file
+(only the `%{locale}` part is changed to match target locale). Thus, it is not necessary to
+specify any `write` configuration (in fact, it would be completely ignored).
+
+This can be useful for example when using [ViewComponent sidecars](https://viewcomponent.org/guide/translations.html)
+(ViewComponent assigns an implicit scope to each sidecar YAML file but `i18n-tasks` is not aware of
+that logic, resulting in collisions):
+
+* `app/components/movies_component.en.yml`:
+   ```yaml
+   en:
+     title: Movies
+   ```
+
+* `app/components/games_component.en.yml`
+   ```yaml
+   en:
+     title: Games
+   ```
+
+This router has a limitation, though: it does not support detecting missing keys from code usage
+(since it is not aware of the implicit scope logic).
+
 ##### Key pattern syntax
 
 A special syntax similar to file glob patterns is used throughout i18n-tasks to match translation keys:
@@ -409,6 +436,12 @@ translation:
   google_translate_api_key: <Google Translate API key>
 ```
 
+or via environment variable:
+
+```bash
+GOOGLE_TRANSLATE_API_KEY=<Google Translate API key>
+```
+
 <a name="deepl-translation-config"></a>
 ### DeepL Pro Translate
 
@@ -420,6 +453,19 @@ translation:
   deepl_api_key: <DeepL Pro API key>
   deepl_host: <optional>
   deepl_version: <optional>
+  deepl_glossary_ids:
+    - f28106eb-0e06-489e-82c6-8215d6f95089
+    - 2c6415be-1852-4f54-9e1b-d800463496b4
+  deepl_options:
+    formality: prefer_less
+```
+
+or via environment variables:
+
+```bash
+DEEPL_API_KEY=<DeepL Pro API key>
+DEEPL_HOST=<optional>
+DEEPL_VERSION=<optional>
 ```
 
 <a name="yandex-translation-config"></a>
@@ -433,6 +479,12 @@ translation:
   yandex_api_key: <Yandex API key>
 ```
 
+or via environment variable:
+
+```bash
+YANDEX_API_KEY=<Yandex API key>
+```
+
 <a name="openai-translation-config"></a>
 ### OpenAI Translate
 
@@ -442,6 +494,14 @@ translation:
 # config/i18n-tasks.yml
 translation:
   openai_api_key: <OpenAI API key>
+  openai_model: <optional>
+```
+
+or via environment variable:
+
+```bash
+OPENAI_API_KEY=<OpenAI API key>
+OPENAI_MODEL=<optional>
 ```
 
 ## Interactive console
